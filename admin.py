@@ -128,8 +128,8 @@ class MovieAdmin(ModelAdmin):
 
 class MagnetAdmin(ModelAdmin):
     paginate_by = 100
-    columns = ('movie', 'magnet_desc', 'link', 'magnet_size', 'magnet_upload_date', 'magnet_create_time', )
-    filter_fields = ('movie')
+    columns = ('movie', 'magnet_desc', 'link', 'magnet_size_number', 'magnet_upload_date', 'magnet_create_time', )
+    filter_fields = ('movie', 'magnet_desc', 'magnet_size_number')
 
 class ErrorHistoryAdmin(ModelAdmin):
     paginate_by = 100

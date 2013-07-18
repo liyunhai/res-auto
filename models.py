@@ -204,6 +204,35 @@ class Error_History(db.Model):
     class Meta:
         database = command_db
 
+class L_Site(db.Model):
+    name = CharField(verbose_name='Name')
+    logo = CharField(null=True, verbose_name='Logo')
+    url = CharField(null=True, verbose_name='URL')
+    desc = TextField(null=True, verbose_name='Description')
+    
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        database = command_db
+
+class L_Actress(db.Model):
+    name = CharField(verbose_name='Name')
+    birthday = DateField(null=True, verbose_name='Birthday')
+    blood_type = CharField(null=True, verbose_name='Blood Type')
+    height = IntegerField(null=True, verbose_name='Height')
+    bra_size = CharField(null=True, verbose_name='Bra Size')
+    bust = IntegerField(null=True, verbose_name='Bust')
+    waist = IntegerField(null=True, verbose_name='Waist')
+    hips = IntegerField(null=True, verbose_name='Hips')
+    url = CharField(null=True, verbose_name='URL')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        database = command_db
+
         
 
 

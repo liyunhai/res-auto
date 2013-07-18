@@ -39,7 +39,7 @@ def processMovie(movie):
         print e
 
 def main():
-    for movie in Movie.select().where(Movie.movie_status == 'new' and Movie.movie_actress == '愛田奈々'):
+    for movie in Movie.select().where((Movie.movie_actress % '%愛田奈々%') & (Movie.movie_magnet_count == 0)):
         print('begin to process movie: ' + movie.movie_number + ' ' + movie.movie_name)
         processMovie(movie)
 
