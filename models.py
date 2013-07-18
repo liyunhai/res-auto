@@ -132,6 +132,66 @@ class Rss_Item(db.Model):
     class Meta:
         database = command_db
 
+class Actress(db.Model):
+    actress_name = CharField(verbose_name='Name')
+    actress_birthday = DateField(null=True, verbose_name='Birthday')
+    actress_blood_type = CharField(null=True, verbose_name='Blood Type')
+    actress_height = IntegerField(null=True, verbose_name='Height')
+    actress_bra_size = CharField(null=True, verbose_name='Bra Size')
+    actress_bust = IntegerField(null=True, verbose_name='Bust')
+    actress_waist = IntegerField(null=True, verbose_name='Waist')
+    actress_hips = IntegerField(null=True, verbose_name='Hips')
+    actress_url = CharField()
+    actress_last_time = DateField(verbose_name='Last Time')
+
+    def __unicode__(self):
+        return self.actress_name
+
+    class Meta:
+        database = command_db
+
+class Movie(db.Model):
+    movie_number = CharField(verbose_name='Number')
+    movie_name = CharField(verbose_name='Name')
+    movie_duration = CharField(verbose_name='Duration')
+    movie_actress = TextField(verbose_name='Actress')
+    movie_multi_a = IntegerField()
+    movie_release_date = DateField(verbose_name='Release Date')
+    movie_press = CharField(null=True, verbose_name='Press')
+    movie_desc = TextField(null=True)
+    movie_status = CharField(verbose_name='Status')
+    movie_magnet_count = IntegerField(default=0, verbose_name='M Count')
+
+    def __unicode__(self):
+        return self.movie_number + ' ' + self.movie_name
+
+    class Meta:
+        database = command_db
+
+class Magnet(db.Model):
+    movie = ForeignKeyField(Movie, related_name='magnets')
+    magnet_desc = CharField(verbose_name='Description')
+    magnet_web_url = CharField()
+    magnet_link = CharField()
+    magnet_size = CharField(verbose_name='Size')
+    magnet_size_number = IntegerField()
+    magnet_files_count = IntegerField()
+    magnet_upload_date = DateField(verbose_name='Upload Date')
+    magnet_create_time = DateTimeField(default=datetime.now, verbose_name='Create Time')
+
+    def link(self):
+        magnet = self.magnet_link
+        magnet_html = '<a href="' + magnet + '"> <img src="/static/magnet.png" /></a>'
+
+        return Markup(magnet_html)
+
+    def __unicode__(self):
+        return self.magnet_desc
+
+    class Meta:
+        database = command_db
+        
+
 class Error_History(db.Model):
     # error_id = PrimaryKeyField()
     error_module = CharField()
@@ -177,6 +237,10 @@ def create_tables():
     Rss_Access.create_table(fail_silently=True)
     Rss_Item.create_table(fail_silently=True)
     Error_History.create_table(fail_silently=True)
+
+    Actress.create_table(fail_silently=True)
+    Movie.create_table(fail_silently=True)
+    Magnet.create_table(fail_silently=True)
 
 def create_admin():
     admin = User(username='admin', admin=True, active=True, email='admin@example.com')

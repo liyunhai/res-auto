@@ -6,7 +6,7 @@ from flask_peewee.filters import QueryFilter
 
 from app import app, db
 from auth import auth
-from models import User, Rss, Rss_Keyword, Rss_Access, Rss_Item, Error_History
+from models import User, Rss, Rss_Keyword, Rss_Access, Rss_Item, Actress, Movie, Magnet, Error_History
 
 
 # class NotePanel(AdminPanel):
@@ -114,6 +114,23 @@ class RssItemAdmin(ModelAdmin):
     columns = ('rss_item_title', 'download', 'size', 'rss_item_pub_date', 'rss_item_rating', 'rss_item_status',)
     filter_fields = ('rss_item_title', 'rss_item_pub_date', 'rss_item_rating', 'rss_item_status')
 
+class ActressAdmin(ModelAdmin):
+    paginate_by = 100
+    columns = ('actress_name', 'actress_birthday', 'actress_blood_type', 'actress_height', 'actress_bra_size', \
+        'actress_bust', 'actress_waist', 'actress_hips', 'actress_last_time', )
+    filter_fields = ('actress_bra_size')
+
+class MovieAdmin(ModelAdmin):
+    paginate_by = 100
+    columns = ('movie_number', 'movie_name', 'movie_duration', 'movie_actress', \
+        'movie_release_date', 'movie_press', 'movie_status', 'movie_magnet_count', )
+    filter_fields = ('movie_number', 'movie_actress', 'movie_status', 'movie_magnet_count')
+
+class MagnetAdmin(ModelAdmin):
+    paginate_by = 100
+    columns = ('movie', 'magnet_desc', 'link', 'magnet_size', 'magnet_upload_date', 'magnet_create_time', )
+    filter_fields = ('movie')
+
 class ErrorHistoryAdmin(ModelAdmin):
     paginate_by = 100
     columns = ('error_module', 'error_time', 'error_message',)
@@ -125,6 +142,9 @@ admin.register(Rss, RssAdmin)
 admin.register(Rss_Keyword, RssKeywordAdmin)
 admin.register(Rss_Access, RssAccessAdmin)
 admin.register(Rss_Item, RssItemAdmin)
+admin.register(Actress, ActressAdmin)
+admin.register(Movie, MovieAdmin)
+admin.register(Magnet, MagnetAdmin)
 admin.register(Error_History, ErrorHistoryAdmin)
 # admin.register(Relationship)
 # admin.register(Message, MessageAdmin)
