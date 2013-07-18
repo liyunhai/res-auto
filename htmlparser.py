@@ -410,7 +410,9 @@ class MagnetInfo(SGMLParser):
     def convertSize(self, size):
         size_n = 0
 
-        sizes = size.split(' ')
+        newsize = size.replace(",", "")
+
+        sizes = newsize.split(' ')
 
         if len(sizes) == 2:
             if sizes[1] == 'MB':
