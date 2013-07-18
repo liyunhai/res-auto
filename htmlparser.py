@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import urllib2
 import socket
 from datetime import datetime
@@ -158,10 +161,14 @@ class FanHaoList(SGMLParser):
                     print('        unique check failed(last time): ' + movie.movie_number)
                     del self.movies[-1]
                     self.break_tag = True
+                    if len(self.movies) == 0:
+                        print('******************** no movie update ********************')
             elif movie.movie_release_date < self.last_time:
                 print('        unique check failed(last time): ' + movie.movie_number)
                 del self.movies[-1]
                 self.break_tag = True
+                if len(self.movies) == 0:
+                    print('******************** no movie update ********************')
         elif self.td_index == 4:
             movie.movie_press = text
 
@@ -246,8 +253,9 @@ class MagnetList(SGMLParser):
         
 
     def checkUnique(self, pre_magnet):
-        if Magnet.select().where(Magnet.magnet_desc == pre_magnet.magnet_desc and \
-            Magnet.magnet_upload_date == pre_magnet.magnet_upload_date).count() >= 1:
+        count = Magnet.select().where((Magnet.magnet_desc == pre_magnet.magnet_desc) & \
+            (Magnet.magnet_upload_date == pre_magnet.magnet_upload_date)).count()
+        if  count >= 1:
             print('        unique check failed: ' + pre_magnet.magnet_desc)
             return False
 
@@ -296,6 +304,8 @@ class MagnetList(SGMLParser):
             if self.checkUnique(pre_magnet) == False:
                 del self.magnets[-1]
                 self.break_tag = True
+                if len(self.magnets) == 0:
+                    print('******************** no magnet update ********************')
                 return
 
             if self.checkAccuracy(pre_magnet) == False:
@@ -399,8 +409,20 @@ class MagnetInfo(SGMLParser):
     
     def convertSize(self, size):
         size_n = 0
-        return size_n
 
+        sizes = size.split(' ')
+
+        if len(sizes) == 2:
+            if sizes[1] == 'MB':
+                size_n = float(sizes[0])
+            elif sizes[1] == 'GB':
+                size_n = float(sizes[0]) * 1024
+            elif sizes[1] == 'TB':
+                size_n = float(sizes[0]) * 1024 * 1024
+            elif sizes[1] == 'KB':
+                size_n = float(sizes[0]) / 1024
+
+        return size_n
 
     def reset(self):
         SGMLParser.reset(self)
@@ -435,4 +457,4 @@ class MagnetInfo(SGMLParser):
                 self.files_count = int(text)
             elif self.td_tag == 'size':
                 self.size = text
-                self.size_number = self.convertSize(text)
+                self.size_number = self.convertSize(self.size)

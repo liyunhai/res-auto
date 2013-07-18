@@ -174,7 +174,7 @@ class Magnet(db.Model):
     magnet_web_url = CharField()
     magnet_link = CharField()
     magnet_size = CharField(verbose_name='Size')
-    magnet_size_number = IntegerField()
+    magnet_size_number = FloatField()
     magnet_files_count = IntegerField()
     magnet_upload_date = DateField(verbose_name='Upload Date')
     magnet_create_time = DateTimeField(default=datetime.now, verbose_name='Create Time')
