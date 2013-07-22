@@ -3,6 +3,7 @@
 
 import urllib2
 import socket
+import httplib
 from htmlparser import MagnetList
 from models import *
 
@@ -37,9 +38,11 @@ def processMovie(movie):
         print e
     except socket.timeout, e:
         print e
+    except httplib.BadStatusLine, e:
+        print e
 
 def main():
-    for movie in Movie.select().where((Movie.movie_actress % '%愛田奈々%') & (Movie.movie_magnet_count == 0)):
+    for movie in Movie.select().where((Movie.movie_actress % '%%') & (Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new')):
         print('begin to process movie: ' + movie.movie_number + ' ' + movie.movie_name)
         processMovie(movie)
 

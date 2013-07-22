@@ -3,6 +3,7 @@
 
 import urllib2
 import socket
+import httplib
 from htmlparser import FanHaoList
 from models import *
 
@@ -34,6 +35,8 @@ def processActress(actress):
     except urllib2.URLError, e:
         print e
     except socket.timeout, e:
+        print e
+    except httplib.BadStatusLine, e:
         print e
     # finally:
     #     if not usock is None:

@@ -3,6 +3,7 @@
 
 import urllib2
 import socket
+import httplib
 from datetime import datetime
 from sgmllib import SGMLParser
 from models import Actress, Movie, Magnet
@@ -118,6 +119,8 @@ class FanHaoList(SGMLParser):
                 except urllib2.URLError, e:
                     raise e
                 except socket.timeout, e:
+                    raise e
+                except httplib.BadStatusLine, e:
                     raise e
                 # finally:
                 #     if not fanhao_usock is None:
@@ -376,6 +379,8 @@ class MagnetList(SGMLParser):
                 except urllib2.URLError, e:
                     raise e
                 except socket.timeout, e:
+                    raise e
+                except httplib.BadStatusLine, e:
                     raise e
 
             elif href and self.a_index == 1:
