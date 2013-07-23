@@ -1,4 +1,4 @@
-from models import *
+# from models import *
 
 def convertSize(bytes): 
 	i = 0 
@@ -11,9 +11,9 @@ def convertSize(bytes):
 	newsize = '%.2f ' % (bytes) 
 	return newsize + units[i]
 
-def recordError(module, message, detail):
-	error = Error_History()
-	error.error_module = module
-	error.error_message = message
-	error.error_detail = detail
-	error.save()
+# def recordError(module, message, detail):
+# 	error = Error_History()
+# 	error.error_module = module
+# 	error.error_message = message
+# 	error.error_detail = detail
+# 	error.save()

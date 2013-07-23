@@ -5,8 +5,15 @@ import urllib2
 import socket
 import httplib
 from htmlparser import FanHaoList
-from utils import recordError
+# from utils import recordError
 from models import *
+
+def recordError(module, message, detail):
+    error = Error_History()
+    error.error_module = module
+    error.error_message = message
+    error.error_detail = detail
+    error.save()
 
 def processActress(actress):
 
