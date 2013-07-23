@@ -5,6 +5,7 @@ import urllib2
 import socket
 import httplib
 from htmlparser import FanHaoList
+from utils import recordError
 from models import *
 
 def processActress(actress):
@@ -31,12 +32,16 @@ def processActress(actress):
             actress.actress_last_time = last_time
             actress.save()
     except urllib2.HTTPError, e:
+        recordError('MD_IMPORT', str(e), actress.actress_name)
         print e
     except urllib2.URLError, e:
+        recordError('MD_IMPORT', str(e), actress.actress_name)
         print e
     except socket.timeout, e:
+        recordError('MD_IMPORT', str(e), actress.actress_name)
         print e
     except httplib.BadStatusLine, e:
+        recordError('MD_IMPORT', str(e), actress.actress_name)
         print e
     # finally:
     #     if not usock is None:

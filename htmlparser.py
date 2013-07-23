@@ -270,6 +270,9 @@ class MagnetList(SGMLParser):
         p1 = self.movie.movie_number.lower()
         p2 = (keys[0] + keys[1]).lower()
         p3 = (keys[0] + '00' + keys[1]).lower()
+        p4 = (keys[0] + '0' + keys[1]).lower()
+        p5 = (keys[0] + '_' + keys[1]).lower()
+        p6 = (keys[0] + ' ' + keys[1]).lower()
 
         udesc = unicode(pre_magnet.magnet_desc.lower(), "utf-8")
 
@@ -280,6 +283,15 @@ class MagnetList(SGMLParser):
             return True
 
         if udesc.find(p3) != -1:
+            return True
+
+        if udesc.find(p4) != -1:
+            return True
+
+        if udesc.find(p5) != -1:
+            return True
+
+        if udesc.find(p6) != -1:
             return True
 
         print('        accuracy check failed: ' + pre_magnet.magnet_desc)

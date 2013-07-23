@@ -5,6 +5,7 @@ import urllib2
 import socket
 import httplib
 from htmlparser import MagnetList
+from utils import recordError
 from models import *
 
 def processMovie(movie):
@@ -33,16 +34,20 @@ def processMovie(movie):
             movie.movie_magnet_count += magnet_count
             movie.save()
     except urllib2.HTTPError, e:
+        recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
         print e
     except urllib2.URLError, e:
+        recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
         print e
     except socket.timeout, e:
+        recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
         print e
     except httplib.BadStatusLine, e:
+        recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
         print e
 
 def main():
-    for movie in Movie.select().where((Movie.movie_actress % '%%') & (Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new')):
+    for movie in Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new')):
         print('begin to process movie: ' + movie.movie_number + ' ' + movie.movie_name)
         processMovie(movie)
 

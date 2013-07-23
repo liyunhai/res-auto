@@ -194,12 +194,13 @@ class Magnet(db.Model):
 
 class Error_History(db.Model):
     # error_id = PrimaryKeyField()
-    error_module = CharField()
-    error_time = DateTimeField(default=datetime.now)
-    error_message = TextField()
+    error_module = CharField(verbose_name='Module')
+    error_time = DateTimeField(default=datetime.now, verbose_name='Time')
+    error_message = TextField(verbose_name='Message')
+    error_detail = TextField(verbose_name='Detail')
 
     def __unicode__(self):
-        return 'error_module:%s error_time:%s error_message:%s' % (self.error_module, self.error_time, self.error_message)
+        return self.error_module + ':' + error_message
 
     class Meta:
         database = command_db
