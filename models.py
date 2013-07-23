@@ -9,7 +9,7 @@ from flask import Markup
 
 from app import db
 
-import utils
+from utils import *
 
 command_db = MySQLDatabase('res_auto', host='127.0.0.1', port=3306, user='res_auto', passwd='no1Knows')
 
@@ -106,7 +106,7 @@ class Rss_Item(db.Model):
 
     def size(self):
         dict_extension = cPickle.loads(str(self.rss_item_extension))
-        csize = utils.convertSize(string.atoi(dict_extension['contentlength']))
+        csize = convertSize(string.atoi(dict_extension['contentlength']))
         return Markup(csize)
 
     def download(self):

@@ -1,4 +1,4 @@
-from models import Error_History
+from models import *
 
 def convertSize(bytes): 
 	i = 0 
