@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import urllib2
 import socket
 import httplib
@@ -54,7 +55,15 @@ def processMovie(movie):
         print e
 
 def main():
-    for movie in Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new')):
+    movies = []
+    # actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
+
+    if len(sys.argv) == 1:
+        movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new'))
+    elif len(sys.argv) == 2:
+        movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new') & (Movie.movie_actress % sys.argv[1].decode('utf-8')))
+
+    for movie in movies:
         print('begin to process movie: ' + movie.movie_number + ' ' + movie.movie_name)
         processMovie(movie)
 

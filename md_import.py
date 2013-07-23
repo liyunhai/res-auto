@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import sys
 import urllib2
 import socket
 import httplib
@@ -57,10 +58,17 @@ def processActress(actress):
     #         parser.close()
 
 def main():
-    for actress in Actress.select():
+    actresses = []
+
+    if len(sys.argv) == 1:
+        actresses = Actress.select()
+    elif len(sys.argv) == 2:
+        actresses = Actress.select().where(Actress.actress_name == sys.argv[1].decode('utf-8'))
+
+    for actress in actresses:
         print('begin to process actress: ' + actress.actress_name)
         processActress(actress)
-        # print('end process actress:' + actress.actress_name)
+        print('end process actress:' + actress.actress_name)
 
 if __name__ == '__main__':
     main()
