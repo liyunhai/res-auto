@@ -50,18 +50,21 @@ def processMovie(movie):
     except socket.timeout, e:
         recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
         print e
+    except socket.error, e:
+        recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
+        print e
     except httplib.BadStatusLine, e:
         recordError('MAGNET_IMPORT', str(e), movie.movie_number + ' ' + movie.movie_name)
         print e
 
 def main():
     movies = []
-    # actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
+    actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
 
     if len(sys.argv) == 1:
         movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new'))
     elif len(sys.argv) == 2:
-        movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new') & (Movie.movie_actress % sys.argv[1].decode('utf-8')))
+        movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new') & (Movie.movie_actress % actress))
 
     for movie in movies:
         print('begin to process movie: ' + movie.movie_number + ' ' + movie.movie_name)

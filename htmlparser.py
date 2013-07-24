@@ -120,6 +120,8 @@ class FanHaoList(SGMLParser):
                     raise e
                 except socket.timeout, e:
                     raise e
+                except socket.error, e:
+                    raise e
                 except httplib.BadStatusLine, e:
                     raise e
                 # finally:
@@ -391,6 +393,8 @@ class MagnetList(SGMLParser):
                 except urllib2.URLError, e:
                     raise e
                 except socket.timeout, e:
+                    raise e
+                except socket.error, e:
                     raise e
                 except httplib.BadStatusLine, e:
                     raise e

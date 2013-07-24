@@ -48,6 +48,9 @@ def processActress(actress):
     except socket.timeout, e:
         recordError('MD_IMPORT', str(e), actress.actress_name)
         print e
+    except socket.error, e:
+        recordError('MD_IMPORT', str(e), actress.actress_name)
+        print e
     except httplib.BadStatusLine, e:
         recordError('MD_IMPORT', str(e), actress.actress_name)
         print e
@@ -68,7 +71,7 @@ def main():
     for actress in actresses:
         print('begin to process actress: ' + actress.actress_name)
         processActress(actress)
-        print('end process actress:' + actress.actress_name)
+        # print('end process actress:' + actress.actress_name)
 
 if __name__ == '__main__':
     main()
