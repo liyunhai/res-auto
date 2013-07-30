@@ -59,11 +59,11 @@ def processMovie(movie):
 
 def main():
     movies = []
-    actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
 
     if len(sys.argv) == 1:
         movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new'))
     elif len(sys.argv) == 2:
+        actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
         movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new') & (Movie.movie_actress % actress))
 
     for movie in movies:
