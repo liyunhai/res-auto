@@ -1,112 +1,135 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
-import urllib2
-import socket
-import httplib
-from htmlparser import FanHaoList
-from pymediainfo import MediaInfo
-# from utils import recordError
-from models import *
-
 import os
 from os import listdir, stat
 from stat import S_ISDIR
 
-# def recordError(module, message, detail):
-#     error = Error_History()
-#     error.error_module = module
-#     error.error_message = message
-#     error.error_detail = detail
-#     error.save()
+import commands
 
-# def processActress(actress):
+from models import *
+import utils
 
-#     try:
-#         last_time = actress.actress_last_time
+def processVideo(movie_dir, l_movie):
+    l_movie.video_number = 0
+    video_size = 0
+    l_movie.video_resolution = ''
+    l_movie.video_aspect_ratio = ''
 
-#         usock = urllib2.urlopen(actress.actress_url, timeout=60)
-#         parser = FanHaoList(last_time)
-#         parser.feed(usock.read())
-#         usock.close()
-#         parser.close()
+    video_files = listdir(movie_dir)
+    for video_file in video_files:
+        full_video_file = os.path.join(movie_dir, video_file)
+        st_values = stat(full_video_file)
+        if S_ISDIR(st_values[0]):
+            print('structure error: ' + full_video_file)
+        elif os.path.splitext(video_file)[-1] == '.avi' or os.path.splitext(video_file)[-1] == '.wmv' or \
+            os.path.splitext(video_file)[-1] == '.mp4' or os.path.splitext(video_file)[-1] == '.mkv' or \
+            os.path.splitext(video_file)[-1] == '.mov':
+            l_movie.video_number += 1
+            l_movie.video_extension = os.path.splitext(video_file)[-1]
+            video_size = video_size + os.path.getsize(full_video_file)
 
-#         index = 0
-#         movie_count = len(parser.movies)
-#         while index < movie_count:
-#             movie = parser.movies[movie_count - index - 1]
-#             if movie.movie_status != 'exist':
-#                 movie.save()
-#                 last_time = movie.movie_release_date
-#             index += 1
+            command = 'mediainfo --Inform="Video;%Format%_%Width%X%Height%_%DisplayAspectRatio/String%" ' + full_video_file
+            result = commands.getstatusoutput(command)
 
-#         if last_time != actress.actress_last_time:
-#             actress.actress_last_time = last_time
-#             actress.save()
-#     except urllib2.HTTPError, e:
-#         recordError('MD_IMPORT', str(e), actress.actress_name)
-#         print e
-#     except urllib2.URLError, e:
-#         recordError('MD_IMPORT', str(e), actress.actress_name)
-#         print e
-#     except socket.timeout, e:
-#         recordError('MD_IMPORT', str(e), actress.actress_name)
-#         print e
-#     except socket.error, e:
-#         recordError('MD_IMPORT', str(e), actress.actress_name)
-#         print e
-#     except httplib.BadStatusLine, e:
-#         recordError('MD_IMPORT', str(e), actress.actress_name)
-#         print e
-    # finally:
-    #     if not usock is None:
-    #         usock.close()
-    #     if not parser is None:
-    #         parser.close()
+            if result[0] == 0:
+                l_movie.video_codec = result[1].split('_')[0]
+                l_movie.video_resolution = l_movie.video_resolution + result[1].split('_')[1] + ';'
+                l_movie.video_aspect_ratio = l_movie.video_aspect_ratio + result[1].split('_')[2] + ';'
+            else:
+                print('execute mediainfo command error: ' + full_video_file)
+        elif os.path.splitext(video_file)[-1] == '.jpg' or os.path.splitext(video_file)[-1] == '.png':
+            pass
+        else:
+            print('unknown file type error: ' + full_movie_dir)
+    
+    l_movie.video_status = 'UNKNOWN'
+
+    if l_movie.video_resolution != '':
+        l_movie.video_resolution = l_movie.video_resolution[0:-1]
+        width = int(l_movie.video_resolution.split(';')[0].split('X')[0])
+        if width >= 1920:
+            l_movie.video_status = 'FHD'
+        elif width >= 1280:
+            l_movie.video_status = 'HD'
+        else:
+            l_movie.video_status = 'SD'
+
+    if l_movie.video_aspect_ratio != '':
+        l_movie.video_aspect_ratio = l_movie.video_aspect_ratio[0:-1]
+    
+    l_movie.video_size = utils.convertSize(video_size)
+
+def processMovie(movie_dir, index, movie_numbers):
+    movie_dir_last = movie_dir.split('/')[-1]
+    movie_number = movie_dir_last.split('_')[0]
+    if not movie_number in movie_numbers:
+        print('        begin import movie: ' + movie_dir_last)
+        
+        check_movies = L_JPN_Movie.select().where(L_JPN_Movie.number == movie_number)
+        if check_movies.count() != 0:
+            print('unique error: ' + movie_dir_last)
+            return
+
+        l_movie = L_JPN_Movie()
+        l_movie.number = movie_number
+        l_movie.video_path = movie_dir.split('/')[-2] + '/' + movie_dir.split('/')[-1]
+
+        processVideo(movie_dir, l_movie)
+
+        info = movie_dir_last + '\n'
+
+        movies = Movie.select().where(Movie.movie_number == movie_number)
+        if movies.count() != 0:
+            movie = movies.get()
+            l_movie.name = movie.movie_name
+            l_movie.duration = movie.movie_duration
+            l_movie.actress = movie.movie_actress
+            l_movie.release_date = movie.movie_release_date
+            l_movie.press = movie.movie_press
+            l_movie.desc = movie.movie_desc
+            info = l_movie.number + '_' + l_movie.name.encode('utf-8') + '\n'
+
+        l_movie.save()
+
+        index.write(info)
+            
+
+def processActress(actress_dir):
+    print('begin import actress: ' + actress_dir.split('/')[-1])
+
+    movie_numbers = []
+    
+    index = file(os.path.join(actress_dir, 'index.txt'), 'a+')
+    while True:
+        line = index.readline()
+        if len(line) == 0: # Zero length indicates EOF
+            break
+        movie_numbers.append(line.split('_')[0])
+    
+    movies_dir = listdir(actress_dir)
+    for movie_dir in movies_dir:
+        full_movie_dir = os.path.join(actress_dir, movie_dir)
+        st_values = stat(full_movie_dir)
+        if S_ISDIR(st_values[0]):
+            processMovie(full_movie_dir, index, movie_numbers)
+        elif movie_dir == 'index.txt':
+            pass
+        else:
+            print('structure error: ' + full_movie_dir)
+    index.close()
 
 def main():
     top_dir = '/home/liyunhai/Share/mnt/JPN'
+    top_dir = '/home/liyunhai/Dev/testfile'
     actresses_dir = listdir(top_dir)
     for actress_dir in actresses_dir:
         full_actress_dir = os.path.join(top_dir, actress_dir)
-        st_a_values = stat(full_actress_dir)
-        if S_ISDIR(st_a_values[0]):
-            print('begin import actress: ' + actress_dir)
-            movies_dir = listdir(full_actress_dir)
-            for movie_dir in movies_dir:
-                full_movie_dir = os.path.join(full_actress_dir, movie_dir)
-                st_m_values = stat(full_movie_dir)
-                if S_ISDIR(st_m_values[0]):
-                    print('        begin import movie: ' + movie_dir)
-                else:
-                    print('        structure error: ' + full_movie_dir)
-                
-
+        st_values = stat(full_actress_dir)
+        if S_ISDIR(st_values[0]):
+            processActress(full_actress_dir)
         else:
             print('structure error: ' + full_actress_dir)
-
-    # actresses = []
-
-    # if len(sys.argv) == 1:
-    #     actresses = Actress.select()
-    # elif len(sys.argv) == 2:
-    #     actresses = Actress.select().where(Actress.actress_name == sys.argv[1].decode('utf-8'))
-
-    # for actress in actresses:
-    #     print('begin to process actress: ' + actress.actress_name)
-    #     processActress(actress)
-    # media_info = MediaInfo.parse('/home/liyunhai/Dev/testfile/xart.13.07.25.jessica.make.me.feel.beautiful.mp4')
-    # for track in media_info.tracks:
-    #     if track.track_type == 'Video':
-    #         print track.width, track.height
-
-    # media_info = MediaInfo.parse('/home/liyunhai/Dev/testfile/xart.13.07.25.jessica.make.me.feel.beautiful.mp4')
-    # for track in media_info.tracks:
-    #     if track.bit_rate is not None:
-    #         print "%s: %s" % (track.track_type, track.bit_rate)
-    #     else:
-    #         print "%s tracks do not have bit rate associated with them." % track.track_type
 
 if __name__ == '__main__':
     main()

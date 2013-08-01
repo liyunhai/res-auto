@@ -205,31 +205,54 @@ class Error_History(db.Model):
     class Meta:
         database = command_db
 
-class L_Site(db.Model):
-    name = CharField(verbose_name='Name')
-    logo = CharField(null=True, verbose_name='Logo')
-    url = CharField(null=True, verbose_name='URL')
-    desc = TextField(null=True, verbose_name='Description')
+# class L_Site(db.Model):
+#     name = CharField(verbose_name='Name')
+#     logo = CharField(null=True, verbose_name='Logo')
+#     url = CharField(null=True, verbose_name='URL')
+#     desc = TextField(null=True, verbose_name='Description')
     
+#     def __unicode__(self):
+#         return self.name
+
+#     class Meta:
+#         database = command_db
+
+# class L_Actress(db.Model):
+#     name = CharField(verbose_name='Name')
+#     birthday = DateField(null=True, verbose_name='Birthday')
+#     blood_type = CharField(null=True, verbose_name='Blood Type')
+#     height = IntegerField(null=True, verbose_name='Height')
+#     bra_size = CharField(null=True, verbose_name='Bra Size')
+#     bust = IntegerField(null=True, verbose_name='Bust')
+#     waist = IntegerField(null=True, verbose_name='Waist')
+#     hips = IntegerField(null=True, verbose_name='Hips')
+#     url = CharField(null=True, verbose_name='URL')
+
+#     def __unicode__(self):
+#         return self.name
+
+#     class Meta:
+#         database = command_db
+
+class L_JPN_Movie(db.Model):
+    number = CharField(verbose_name='Number')
+    name = CharField(null=True, verbose_name='Name')
+    duration = CharField(null=True, verbose_name='Duration')
+    actress = TextField(null=True, verbose_name='Actress')
+    release_date = DateField(null=True, verbose_name='Release Date')
+    press = CharField(null=True, verbose_name='Press')
+    desc = TextField(null=True)
+    video_path = CharField(verbose_name='Path')
+    video_number = IntegerField(verbose_name='Number')
+    video_extension = CharField(verbose_name='Extension')
+    video_size = CharField(verbose_name='Size')
+    video_codec = CharField(verbose_name='CodeC')
+    video_resolution = CharField(verbose_name='Resolution')
+    video_aspect_ratio = CharField(verbose_name='Aspect Ratio')
+    video_status = CharField(verbose_name='Status')
+
     def __unicode__(self):
-        return self.name
-
-    class Meta:
-        database = command_db
-
-class L_Actress(db.Model):
-    name = CharField(verbose_name='Name')
-    birthday = DateField(null=True, verbose_name='Birthday')
-    blood_type = CharField(null=True, verbose_name='Blood Type')
-    height = IntegerField(null=True, verbose_name='Height')
-    bra_size = CharField(null=True, verbose_name='Bra Size')
-    bust = IntegerField(null=True, verbose_name='Bust')
-    waist = IntegerField(null=True, verbose_name='Waist')
-    hips = IntegerField(null=True, verbose_name='Hips')
-    url = CharField(null=True, verbose_name='URL')
-
-    def __unicode__(self):
-        return self.name
+        return self.number + ' ' + self.name
 
     class Meta:
         database = command_db
@@ -271,6 +294,8 @@ def create_tables():
     Actress.create_table(fail_silently=True)
     Movie.create_table(fail_silently=True)
     Magnet.create_table(fail_silently=True)
+
+    L_JPN_Movie.create_table(fail_silently=True)
 
 def create_admin():
     admin = User(username='admin', admin=True, active=True, email='admin@example.com')
