@@ -22,6 +22,8 @@ def processVideo(movie_dir, l_movie):
         st_values = stat(full_video_file)
         if S_ISDIR(st_values[0]):
             print('structure error: ' + full_video_file)
+        elif video_file[0] == '.':
+            print('temp file error: ' + full_video_file)
         elif os.path.splitext(video_file)[-1] == '.avi' or os.path.splitext(video_file)[-1] == '.wmv' or \
             os.path.splitext(video_file)[-1] == '.mp4' or os.path.splitext(video_file)[-1] == '.mkv' or \
             os.path.splitext(video_file)[-1] == '.mov':
@@ -41,7 +43,7 @@ def processVideo(movie_dir, l_movie):
         elif os.path.splitext(video_file)[-1] == '.jpg' or os.path.splitext(video_file)[-1] == '.png':
             pass
         else:
-            print('unknown file type error: ' + full_movie_dir)
+            print('unknown file type error: ' + full_video_file)
     
     l_movie.video_status = 'UNKNOWN'
 
@@ -105,6 +107,7 @@ def processActress(actress_dir):
         line = index.readline()
         if len(line) == 0: # Zero length indicates EOF
             break
+        line = line[0:-1]
         movie_numbers.append(line.split('_')[0])
     
     movies_dir = listdir(actress_dir)
