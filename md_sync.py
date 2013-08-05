@@ -19,6 +19,8 @@ def syncMovie(l_movie):
         movie.movie_status = 'sd_done'
 
     movie.save()
+    l_movie.video_sync = True
+    l_movie.save()
 
 def main():
 
