@@ -250,6 +250,7 @@ class L_JPN_Movie(db.Model):
     video_resolution = CharField(verbose_name='Resolution')
     video_aspect_ratio = CharField(verbose_name='Aspect Ratio')
     video_status = CharField(verbose_name='Status')
+    video_sync = BooleanField(default=False)
 
     def __unicode__(self):
         return self.number + ' ' + self.name
