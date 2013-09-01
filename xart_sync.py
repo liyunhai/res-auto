@@ -183,7 +183,7 @@ def processDir(dirName):
             print('unknown file type error: ' + fileName)
 
 def main():
-    top_dir = '/home/liyunhai/Share/mount/West/X-Art'
+    top_dir = '/home/liyunhai/Share/mount/WEST/X-Art'
     processDir(top_dir)
     # actresses_dir = listdir(top_dir)
     # for actress_dir in actresses_dir:
