@@ -5,8 +5,9 @@ import urllib2
 import socket
 import httplib
 from datetime import datetime
+import datetime as dt
 from sgmllib import SGMLParser
-from models import Actress, Movie, Magnet
+from models import Actress, Movie, Magnet, L_XART_Actress, L_XART_Collection
 
 class FanHaoList(SGMLParser):
 
@@ -481,3 +482,572 @@ class MagnetInfo(SGMLParser):
             elif self.td_tag == 'size':
                 self.size = text
                 self.size_number = self.convertSize(self.size)
+
+class XartActressList(SGMLParser):
+    def __init__(self):
+        SGMLParser.__init__(self)
+        self.break_tag = False
+        self.div_tag = False
+        self.table_tag = False
+        self.td_tag = False
+        self.span_tag = False
+        self.span_index = 0
+
+        self.actresses = []
+
+    def reset(self):
+        SGMLParser.reset(self)
+        self.break_tag = False
+        self.div_tag = False
+        self.table_tag = False
+        self.td_tag = False
+        self.span_tag = False
+        self.span_index = 0
+
+        self.actresses = []
+
+    def start_div(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        for attr in attrs:
+            if attr[0] == 'class' and attr[1] == 'box':
+                self.div_tag = True
+
+    def start_table(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        if self.div_tag == True:
+            self.table_tag = True
+
+    def end_table(self):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag == True and self.table_tag == True:
+            self.break_tag = True
+        
+
+    # def checkUnique(self, pre_magnet):
+    #     count = Magnet.select().where((Magnet.magnet_desc == pre_magnet.magnet_desc) & \
+    #         (Magnet.magnet_upload_date == pre_magnet.magnet_upload_date)).count()
+    #     if  count >= 1:
+    #         print('        unique check failed: ' + pre_magnet.magnet_desc)
+    #         return False
+
+    #     return True
+
+    def start_td(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        actress = L_XART_Actress()
+        self.actresses.append(actress)
+
+        self.td_tag = True
+
+    def end_td(self):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        self.td_tag = False
+        self.span_index = 0
+
+    def start_a(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        actress = self.actresses[-1]
+        for attr in attrs:
+            if attr[0] == 'href':
+                actress.url = attr[1].replace(' ', '%20')
+
+    def start_img(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        actress = self.actresses[-1]
+        for attr in attrs:
+            if attr[0] == 'src':
+                actress.image_small = attr[1].replace(' ', '%20')
+
+    def start_span(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        self.span_tag = True
+        self.span_index += 1
+
+    def end_span(self):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        self.span_tag = False
+
+    def handle_data(self, text):
+        if self.break_tag == True:
+            return
+
+        if self.div_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        if self.span_tag != True:
+            return
+
+        actress = self.actresses[-1]
+        if self.span_index == 2:
+            print('        importing ' + text + ' ......')
+            actress.name = text
+        elif self.span_index == 3:
+            data = text.split(':')
+            try:
+                actress.age = int(data[0].strip()[-2:])
+            except ValueError:
+                actress.age = 99
+
+            actress.country = data[-1].strip()
+
+class XartCollectionList(SGMLParser):
+
+    def __init__(self, actress):
+        SGMLParser.__init__(self)
+        self.actress = actress
+        self.break_tag = False
+        self.div_image_tag = False
+        self.ul_features_tag = False
+        self.p_tag = False
+        self.ul_gallery_tag = False
+        self.table_tag = False
+        self.td_tag = False
+        self.span_tag = False
+        self.span_index = 0
+
+        self.collections = []
+
+    def reset(self):
+        SGMLParser.reset(self)
+        self.break_tag = False
+        self.div_image_tag = False
+        self.ul_features_tag = False
+        self.p_tag = False
+        self.ul_gallery_tag = False
+        self.table_tag = False
+        self.td_tag = False
+        self.span_tag = False
+        self.span_index = 0
+
+        self.collections = []
+
+    def start_div(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        for attr in attrs:
+            if attr[0] == 'class' and attr[1] == 'image-info':
+                self.div_image_tag = True
+
+    def start_ul(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        for attr in attrs:
+            if attr[0] == 'class' and attr[1] == 'features':
+                self.ul_features_tag = True
+            if attr[0] == 'class' and attr[1] == 'gallery':
+                self.ul_gallery_tag = True
+
+    def start_p(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ul_features_tag == True:
+            self.p_tag = True
+
+    def start_table(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag == True:
+            self.table_tag = True
+
+    def end_table(self):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag == True and self.table_tag == True:
+            self.break_tag = True
+
+    def start_td(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag == False:
+            return
+
+        if self.table_tag == False:
+            return
+
+        collection = L_XART_Collection()
+        collection.name = ''
+        self.collections.append(collection)
+
+        self.td_tag = True
+
+    def end_td(self):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag == False:
+            return
+
+        if self.table_tag == False:
+            return
+
+        self.td_tag = False
+        self.span_index = 0
+
+    def start_a(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        collection = self.collections[-1]
+        for attr in attrs:
+            if attr[0] == 'href':
+                collection.url = attr[1].replace(' ', '%20')
+
+
+    def start_img(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.div_image_tag == True:
+            for attr in attrs:
+                if attr[0] == 'src':
+                    self.actress.image_large = attr[1].replace(' ', '%20')
+                    self.div_image_tag = False
+            return
+
+        if self.ul_gallery_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        collection = self.collections[-1]
+        for attr in attrs:
+            if attr[0] == 'src':
+                collection.cover = attr[1].replace(' ', '%20')
+
+    def start_span(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        self.span_tag = True
+        self.span_index += 1
+
+    def end_span(self):
+        if self.break_tag == True:
+            return
+
+        if self.ul_gallery_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        self.span_tag = False
+
+    def handle_data(self, text):
+        if self.break_tag == True:
+            return
+
+        if self.ul_features_tag == True and self.p_tag == True:
+            self.actress.bio = text
+            self.ul_features_tag = False
+            self.p_tag = False
+            return
+
+        if self.ul_gallery_tag != True:
+            return
+
+        if self.table_tag != True:
+            return
+
+        if self.td_tag != True:
+            return
+
+        if self.span_tag != True:
+            return
+
+        collection = self.collections[-1]
+        if self.span_index == 2:
+            collection.name += text
+        elif self.span_index == 3:
+            if text == 'Video':
+                collection.ctype = 'Movie'
+            else:
+                collection.ctype = 'Gallery'
+                data = text.split(' ')
+                try:
+                    collection.image_count = int(data[0].strip())
+                except ValueError:
+                    collection.image_count = 99
+
+            print('        importing ' + collection.name + ' [' + collection.ctype + '] ......')
+            try:
+                usock = urllib2.urlopen(collection.url, timeout=60)
+                parser = XartCollection(collection.ctype)
+                parser.feed(usock.read())
+                usock.close()
+                parser.close()
+
+                collection.actress = parser.actress[:-1]
+                collection.release_date = parser.release_date
+                collection.desc = parser.desc
+                collection.cover_large = parser.cover_large
+
+            except urllib2.HTTPError, e:
+                raise e
+                    # if e.code == 404:
+                    #     pass
+                    # else:
+                    #     raise e
+            except urllib2.URLError, e:
+                raise e
+            except socket.timeout, e:
+                raise e
+            except socket.error, e:
+                raise e
+            except httplib.BadStatusLine, e:
+                raise e
+
+
+class XartCollection(SGMLParser):
+    def __init__(self, ctype):
+        SGMLParser.__init__(self)
+        self.ctype  = ctype
+        self.break_tag = False
+        self.ul_tag = False
+        self.li_tag = False
+        self.li_index = 0
+        self.strong_tag = False
+        self.a_tag = False
+        self.fix_tag = False
+        self.p_tag = False
+        self.p_index = 0
+        self.img_index = 0
+
+        self.release_date = dt.date.today()
+        self.actress = ''
+        self.desc = ''
+        self.cover_large = ''
+    
+    def reset(self):
+        SGMLParser.reset(self)
+        self.break_tag = False
+        self.ul_tag = False
+        self.li_tag = False
+        self.li_index = 0
+        self.strong_tag = False
+        self.a_tag = False
+        self.fix_tag = False
+        self.p_tag = False
+        self.p_index = 0
+        self.img_index = 0
+
+        self.release_date = dt.date.today()
+        self.actress = ''
+        self.desc = ''
+        self.cover_large = ''
+
+    def start_ul(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        for attr in attrs:
+            if attr[0] == 'class' and attr[1] == 'head-list':
+                self.ul_tag = True
+
+    def end_ul(self):
+        if self.break_tag == True:
+            return
+        
+        self.ul_tag = False
+
+    def start_li(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        if self.ul_tag == True:
+            self.li_index += 1
+
+    def start_strong(self, attrs):
+        if self.break_tag == True:
+            return
+        
+        self.strong_tag = True
+
+    def end_strong(self):
+        if self.break_tag == True:
+            return
+        
+        self.strong_tag = False
+
+    def start_a(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ul_tag != True:
+            return
+
+        if self.li_index != 2:
+            return
+
+        self.a_tag = True
+
+    def end_a(self):
+        if self.break_tag == True:
+            return
+
+        if self.ul_tag != True:
+            return
+
+        if self.li_index != 2:
+            return
+
+        self.a_tag = False
+
+    def start_p(self, attrs):
+        if self.break_tag == True:
+            return
+
+        self.p_tag = True
+        self.p_index += 1
+
+    def end_p(self):
+        if self.break_tag == True:
+            return
+
+        self.p_tag = False
+
+    def handle_data(self, text):
+        if self.break_tag == True:
+            return
+
+        if self.ctype == 'Gallery':
+            if self.p_tag == True and self.p_index == 4:
+                self.desc += text
+                return
+        elif self.ctype == 'Movie':
+            if self.p_tag == True and self.p_index == 4:
+                self.desc += text
+                return
+
+        if self.ul_tag != True:
+            return
+
+        if self.li_index == 0:
+            return
+
+        if self.strong_tag == True:
+            return
+
+        if self.li_index == 1:
+            if self.fix_tag == False:
+                self.release_date = datetime.strptime(text.strip(), "%b %d, %Y").date()
+                self.fix_tag = True
+        elif self.li_index == 2:
+            if self.a_tag == True:
+                self.actress = self.actress + text + ':'
+
+    def start_img(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.ctype == 'Movie':
+            return
+
+        if self.img_index == 0:
+            for attr in attrs:
+                if attr[0] == 'src':
+                    self.cover_large = attr[1].replace(' ', '%20')
+            self.img_index += 1

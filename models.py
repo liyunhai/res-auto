@@ -258,6 +258,51 @@ class L_JPN_Movie(db.Model):
     class Meta:
         database = command_db
 
+class L_XART_Actress(db.Model):
+    name = CharField(verbose_name='Name')
+    image_small = CharField(verbose_name='Small Image')
+    image_large = CharField(null=True, verbose_name='Large Image')
+    age = CharField(verbose_name='Age')
+    country = CharField(verbose_name='Country')
+    url = CharField(verbose_name='Url')
+    bio = TextField(null=True, verbose_name='Bio')
+    gallery_count = IntegerField(default=0, verbose_name='Gallery Count')
+    gallery_own_count = IntegerField(default=0, verbose_name='Gallery Own Count')
+    movie_count = IntegerField(default=0, verbose_name='Movie Count')
+    movie_own_count = IntegerField(default=0, verbose_name='Movie Own Count')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        database = command_db
+
+class L_XART_Collection(db.Model):
+    name = CharField(verbose_name='Name')
+    actress = CharField(verbose_name='Actress')
+    ctype = CharField(verbose_name='Type')
+    release_date = DateField(verbose_name='Release Date')
+    desc = TextField(verbose_name='Desc')
+    cover = CharField(verbose_name='Cover')
+    url = CharField(verbose_name='Url')
+    
+    cover_large = CharField(null=True, verbose_name='Large Cover')
+    image_count = IntegerField(null=True, verbose_name='Image Count')
+
+    path = CharField(null=True, verbose_name='Path')
+    video_duration = CharField(null=True, verbose_name='Duration')
+    video_resolution = CharField(null=True, verbose_name='Resolution')
+    video_aspect_ratio = CharField(null=True, verbose_name='Aspect Ratio')
+    video_extension = CharField(null=True, verbose_name='Extension')
+    video_size = CharField(null=True, verbose_name='Size')
+    video_status = CharField(null=True, verbose_name='Status')
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        database = command_db
+
         
 
 
@@ -297,6 +342,9 @@ def create_tables():
     Magnet.create_table(fail_silently=True)
 
     L_JPN_Movie.create_table(fail_silently=True)
+
+    L_XART_Actress.create_table(fail_silently=True)
+    L_XART_Collection.create_table(fail_silently=True)
 
 def create_admin():
     admin = User(username='admin', admin=True, active=True, email='admin@example.com')
