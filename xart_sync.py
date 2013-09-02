@@ -10,6 +10,8 @@ import commands
 from models import *
 import utils
 
+dict = {}
+
 # def processVideo(movie_dir, l_movie):
 #     l_movie.video_number = 0
 #     video_size = 0
@@ -123,6 +125,7 @@ import utils
 #     index.close()
 
 def processFile(fileName):
+    global dict
     # print('********** ' + fileName + ' **********')
     file = fileName.split('/')[-1]
     dir = fileName.split('/')[-2]
@@ -142,6 +145,12 @@ def processFile(fileName):
         name += fileData[index] + ' '
         index += 1
     name = name[:-1]
+
+    if dict.has_key(name):
+        print('local video file unique error: ' + dir + '/' + file)
+        return
+    
+    dict[name] = fileData[1]
 
     ext = fileData[-1].split('.')[0]
 
@@ -180,7 +189,8 @@ def processDir(dirName):
             print('unknown file type error: ' + fileName)
 
 def main():
-    top_dir = '/home/liyunhai/Share/mount/WEST/X-Art'
+    # top_dir = '/home/liyunhai/Share/mount/WEST/X-Art'
+    top_dir = '/home/liyunhai/Dev/X-Art'
     processDir(top_dir)
 
 if __name__ == '__main__':
