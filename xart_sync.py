@@ -33,8 +33,8 @@ def processVideo(fileName, collection):
     collection.video_extension = os.path.splitext(file)[-1]
     collection.video_size = utils.convertSize(os.path.getsize(fileName))
 
-
-    command = 'mediainfo --Inform="Video;%Format%_%Width%X%Height%_%DisplayAspectRatio/String%_%Duration/String3%" ' + fileName
+    rfileName = fileName.replace('&', '\&')
+    command = 'mediainfo --Inform="Video;%Format%_%Width%X%Height%_%DisplayAspectRatio/String%_%Duration/String3%" ' + rfileName
     result = commands.getstatusoutput(command)
 
     if result[0] == 0:
@@ -47,7 +47,8 @@ def processVideo(fileName, collection):
     
     collection.video_status = 'UNKNOWN'
 
-    if collection.video_resolution != '':
+    # try:
+    if not (collection.video_resolution is None):
         width = int(collection.video_resolution.split('X')[0])
         if width >= 1920:
             collection.video_status = 'FHD'
@@ -55,6 +56,9 @@ def processVideo(fileName, collection):
             collection.video_status = 'HD'
         else:
             collection.video_status = 'SD'
+    # except TypeError:
+    #     print('')
+
 
     print('updating video info: ' + fileName)
     collection.save()
