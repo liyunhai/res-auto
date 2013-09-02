@@ -53,7 +53,7 @@ def processActress(actress):
                 elif collection.ctype == 'Movie':
                     movie_count += 1
             else:
-                print('unique warning: ' + collection.actress + ' ' + collection.name + ' ' + collection.ctype + ' [' + str(exist_cols.count()) +']')
+                print('        unique warning: ' + collection.actress + ' ' + collection.name + ' ' + collection.ctype + ' [' + str(exist_cols.count()) +']')
 
             if collection.ctype == 'Gallery':
                 single_gallery_count += 1

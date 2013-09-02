@@ -30,10 +30,13 @@ def importActress():
         actress_count = len(parser.actresses)
         while index < actress_count:
             actress = parser.actresses[actress_count - index - 1]
-            # if movie.movie_status != 'exist':
-            #     movie.save()
-            #     last_time = movie.movie_release_date
-            actress.save()
+            exist_actresses = L_XART_Actress.select().where(L_XART_Actress.name == actress.name)
+            if exist_actresses.count() == 0:
+                actress.save()
+                # print('[real] importing actress: ' + actress.name)
+            else:
+                print('        unique warning: ' + actress.name)
+
             index += 1
 
         # if last_time != actress.actress_last_time:
