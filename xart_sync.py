@@ -123,8 +123,9 @@ import utils
 #     index.close()
 
 def processFile(fileName):
-    print('********** ' + fileName + ' **********')
+    # print('********** ' + fileName + ' **********')
     file = fileName.split('/')[-1]
+    dir = fileName.split('/')[-2]
     fileData = file.split('_')
 
     vendor = fileData[0]
@@ -133,7 +134,6 @@ def processFile(fileName):
     p_actresses = []
     for actress in actresses:
         p_actresses.append(actress.replace('.', ' ').lower())
-        # print(actress)
 
     name = ''
     index = 2
@@ -152,17 +152,15 @@ def processFile(fileName):
         c_actresses = collection.actress
         for actress in p_actresses:
             if not actress in c_actresses.lower():
-                # print(actress)
-                # print(c_actresses)
                 actress_check = False
 
         if actress_check == False:
-            print('X-Art lib missing with actress: ' + name)
+            print('X-Art lib missing with actress: ' + dir + '/' + file)
         # print(collection.name)
     elif exist_cols.count() == 0:
-        print('X-Art lib missing: ' + name)
+        print('X-Art lib missing: ' + dir + '/' + file)
     else:
-        print('X-Art lib unique error: ' + name)
+        print('X-Art lib unique error: ' + dir + '/' + file)
 
 
 def processDir(dirName):
@@ -173,7 +171,6 @@ def processDir(dirName):
         if S_ISDIR(st_values[0]):
             processDir(fileName)
         elif file[0] == '.':
-            pass
             print('temp file error: ' + fileName)
         elif os.path.splitext(file)[-1] == '.avi' or os.path.splitext(file)[-1] == '.wmv' or \
             os.path.splitext(file)[-1] == '.mp4' or os.path.splitext(file)[-1] == '.mkv' or \
@@ -185,14 +182,6 @@ def processDir(dirName):
 def main():
     top_dir = '/home/liyunhai/Share/mount/WEST/X-Art'
     processDir(top_dir)
-    # actresses_dir = listdir(top_dir)
-    # for actress_dir in actresses_dir:
-    #     full_actress_dir = os.path.join(top_dir, actress_dir)
-    #     st_values = stat(full_actress_dir)
-    #     if S_ISDIR(st_values[0]):
-    #         processActress(full_actress_dir)
-    #     else:
-    #         print('structure error: ' + full_actress_dir)
 
 if __name__ == '__main__':
     main()
