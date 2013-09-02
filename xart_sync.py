@@ -147,10 +147,12 @@ def processFile(fileName):
     name = name[:-1]
 
     if dict.has_key(name):
-        print('local video file unique error: ' + dir + '/' + file)
+        print('local video file unique error: ')
+        print('origin file: ' + dict[name])
+        print('current file: ' + fileName)
         return
     
-    dict[name] = fileData[1]
+    dict[name] = fileName
 
     ext = fileData[-1].split('.')[0]
 
@@ -189,8 +191,8 @@ def processDir(dirName):
             print('unknown file type error: ' + fileName)
 
 def main():
-    # top_dir = '/home/liyunhai/Share/mount/WEST/X-Art'
-    top_dir = '/home/liyunhai/Dev/X-Art'
+    top_dir = '/home/liyunhai/Share/mount/WEST/X-Art'
+    # top_dir = '/home/liyunhai/Dev/X-Art'
     processDir(top_dir)
 
 if __name__ == '__main__':
