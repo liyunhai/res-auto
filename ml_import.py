@@ -123,8 +123,8 @@ def processActress(actress_dir):
     index.close()
 
 def main():
-    top_dir = '/home/liyunhai/Share/mnt/JPN'
-    top_dir = '/home/liyunhai/Dev/testfile'
+    top_dir = '/home/liyunhai/Share/mount/JPN'
+    # top_dir = '/home/liyunhai/Dev/testfile'
     actresses_dir = listdir(top_dir)
     for actress_dir in actresses_dir:
         full_actress_dir = os.path.join(top_dir, actress_dir)
