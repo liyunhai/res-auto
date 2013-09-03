@@ -53,9 +53,9 @@ def processVideo(fileName, collection):
     # try:
     if not (collection.video_resolution is None):
         width = int(collection.video_resolution.split('X')[0])
-        if width >= 1920:
+        if width >= 1800:
             collection.video_status = 'FHD'
-        elif width >= 1280:
+        elif width >= 1000:
             collection.video_status = 'HD'
         else:
             collection.video_status = 'SD'
