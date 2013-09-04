@@ -120,8 +120,7 @@ def processFile(fileName):
         if actress_check == False:
             print('X-Art lib missing with actress: ' + dir + '/' + file)
         else: 
-            # processVideo(fileName, collection)
-            pass
+            processVideo(fileName, collection)
     elif exist_cols.count() == 0:
         print('X-Art lib missing: ' + dir + '/' + file)
     else:
