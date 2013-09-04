@@ -103,15 +103,19 @@ def processFile(fileName):
     exist_cols = L_XART_Collection.select().where((fn.Lower(L_XART_Collection.name) == name) & (L_XART_Collection.ctype == 'Movie'))
     if exist_cols.count() == 1:
         collection = exist_cols.get()
-        c_actresses = collection.actress
+        c_actresses = collection.actress.split(':')
+        pc_actresses = []
+        for actress in c_actresses:
+            pc_actresses.append(actress.lower())
         for actress in p_actresses:
-            if not actress in c_actresses.lower():
+            if actress not in pc_actresses:
                 actress_check = False
 
         if actress_check == False:
             print('X-Art lib missing with actress: ' + dir + '/' + file)
         else: 
-            processVideo(fileName, collection)
+            # processVideo(fileName, collection)
+            pass
     elif exist_cols.count() == 0:
         print('X-Art lib missing: ' + dir + '/' + file)
     else:
