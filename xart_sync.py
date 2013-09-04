@@ -81,8 +81,10 @@ def processFile(fileName):
     for actress in actresses:
         newact = actress.replace('.', ' ').lower()
         if newact[-1] == ' ':
-            newact[-1] = '.'
-        p_actresses.append(newact)
+            realact = newact[:-1] + '.'
+            p_actresses.append(realact)
+        else:
+            p_actresses.append(newact)
 
 
     name = ''
