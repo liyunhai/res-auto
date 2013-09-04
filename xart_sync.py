@@ -79,7 +79,11 @@ def processFile(fileName):
     actresses = fileData[1].split('&')
     p_actresses = []
     for actress in actresses:
-        p_actresses.append(actress.replace('.', ' ').lower())
+        newact = actress.replace('.', ' ').lower()
+        if newact[-1] == ' ':
+            newact[-1] = '.'
+        p_actresses.append(newact)
+
 
     name = ''
     index = 2
