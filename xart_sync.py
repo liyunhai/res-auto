@@ -154,7 +154,7 @@ def processUpdate(actresses):
 
         dictUpdate_g[actress] = dictUpdate_g[actress] + 1
 
-def processDirInfo(subDir):
+def processDirInfo(subDirName, subDir):
     global dict_g
 
     dirData = subDir.split('_')
@@ -184,15 +184,19 @@ def processDirInfo(subDir):
     exist_cols = L_XART_Collection.select().where((fn.Lower(L_XART_Collection.name) == name) & (L_XART_Collection.ctype == 'Gallery'))
     if exist_cols.count() == 1:
         collection = exist_cols.get()
-        c_actresses = collection.actress
+        c_actresses = collection.actress.split(':')
+        pc_actresses = []
+        for actress in c_actresses:
+            pc_actresses.append(actress.lower())
         for actress in p_actresses:
-            if not actress in c_actresses.lower():
+            if actress not in pc_actresses:
                 actress_check = False
 
         if actress_check == False:
             print('X-Art lib missing with actress: ' + subDir)
         else: 
             collection.video_status = 'OK'
+            collection.path = subDirName
             collection.save()
             processUpdate(p_actresses)
     elif exist_cols.count() == 0:
@@ -206,7 +210,7 @@ def processDir_G(dirName):
         subDirName = os.path.join(dirName, subDir)
         st_values = stat(subDirName)
         if S_ISDIR(st_values[0]):
-            processDirInfo(subDir)
+            processDirInfo(subDirName, subDir)
         else:
             print('bad dir structure: ' + subDirName)
 
