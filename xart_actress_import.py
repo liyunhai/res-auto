@@ -3,6 +3,7 @@
 
 import sys
 import urllib2
+import socks
 import socket
 import httplib
 from htmlparser import XartActressList
@@ -75,6 +76,9 @@ def main():
     #     print('begin to process actress: ' + actress.actress_name)
     #     processActress(actress)
     #     # print('end process actress:' + actress.actress_name)
+
+    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 7070)
+    socket.socket = socks.socksocket
 
     print('begin to import x-art actress: ')
     importActress()

@@ -7,7 +7,7 @@ import httplib
 from datetime import datetime
 import datetime as dt
 from sgmllib import SGMLParser
-from models import Actress, Movie, Magnet, L_XART_Actress, L_XART_Collection
+from models import Actress, Movie, Magnet, L_XART_Actress, L_XART_Collection, L_XART_Magnet
 
 class FanHaoList(SGMLParser):
 
@@ -1051,3 +1051,207 @@ class XartCollection(SGMLParser):
                 if attr[0] == 'src':
                     self.cover_large = attr[1].replace(' ', '%20')
             self.img_index += 1
+
+class XartMagnetList(SGMLParser):
+
+    
+    def __init__(self, collection):
+        SGMLParser.__init__(self)
+        # self.movie = movie
+        # self.break_tag = False
+        # self.start_tag = False
+        # self.td_tag = ''
+        # self.is_td = False
+        # self.tr_index = 0
+        # self.a_index = 0
+
+        # self.magnets = []
+
+    def reset(self):
+        SGMLParser.reset(self)
+        # self.break_tag = False
+        # self.start_tag = False
+        # self.td_tag = ''
+        # self.is_td = False
+        # self.tr_index = 0
+        # self.a_index = 0
+
+        # self.magnets = []
+
+    # def start_table(self, attrs):
+    #     if self.break_tag == True:
+    #         return
+        
+    #     for attr in attrs:
+    #         if attr[0] == 'id' and attr[1] == 'archiveResult':
+    #             self.start_tag = True
+
+    # def end_table(self):
+    #     if self.break_tag == True:
+    #         return
+
+    #     self.start_tag = False
+        
+
+    # def checkUnique(self, pre_magnet):
+    #     count = Magnet.select().where((Magnet.magnet_desc == pre_magnet.magnet_desc) & \
+    #         (Magnet.magnet_upload_date == pre_magnet.magnet_upload_date)).count()
+    #     if  count >= 1:
+    #         print('        unique check failed: ' + pre_magnet.magnet_desc)
+    #         return False
+
+    #     return True
+
+    # def checkAccuracy(self, pre_magnet):
+
+    #     keys = self.movie.movie_number.split('-')
+    #     p1 = self.movie.movie_number.lower()
+    #     p2 = (keys[0] + keys[1]).lower()
+    #     p3 = (keys[0] + '00' + keys[1]).lower()
+    #     p4 = (keys[0] + '0' + keys[1]).lower()
+    #     p5 = (keys[0] + '_' + keys[1]).lower()
+    #     p6 = (keys[0] + ' ' + keys[1]).lower()
+
+    #     udesc = unicode(pre_magnet.magnet_desc.lower(), "utf-8")
+
+    #     if udesc.find(p1) != -1:
+    #         return True
+
+    #     if udesc.find(p2) != -1:
+    #         return True
+
+    #     if udesc.find(p3) != -1:
+    #         return True
+
+    #     if udesc.find(p4) != -1:
+    #         return True
+
+    #     if udesc.find(p5) != -1:
+    #         return True
+
+    #     if udesc.find(p6) != -1:
+    #         return True
+
+    #     print('        accuracy check failed: ' + pre_magnet.magnet_desc)
+    #     return False
+
+    # def start_tr(self, attrs):
+    #     if self.break_tag == True:
+    #         return
+
+    #     if self.start_tag == True:
+    #         if self.tr_index != 0:
+    #             magnet = Magnet()
+    #             magnet.movie = self.movie
+    #             self.magnets.append(magnet)
+    #         self.tr_index += 1
+
+    # def end_tr(self):
+    #     if self.break_tag == True:
+    #         return
+
+    #     self.td_tag = ''
+
+    #     if len(self.magnets) >= 1:
+    #         pre_magnet = self.magnets[-1]
+    #         if self.checkUnique(pre_magnet) == False:
+    #             del self.magnets[-1]
+    #             self.break_tag = True
+    #             if len(self.magnets) == 0:
+    #                 print('******************** no magnet update ********************')
+    #             return
+
+    #         if self.checkAccuracy(pre_magnet) == False:
+    #             del self.magnets[-1]
+
+    # def start_td(self, attrs):
+    #     if self.break_tag == True:
+    #         return
+
+    #     if self.start_tag != True:
+    #         return
+
+    #     for attr in attrs:
+    #         if attr[0] == 'class' and attr[1] == 'name':
+    #             self.td_tag = 'desc'
+    #         elif attr[0] == 'class' and attr[1] == 'date':
+    #             self.td_tag = 'upload date'
+    #         elif attr[0] == 'class' and attr[1] == 'action':
+    #             self.td_tag = 'action'
+    #         else:
+    #             self.td_tag = ''
+
+
+    #     self.is_td = True
+
+    # def end_td(self):
+    #     if self.break_tag == True:
+    #         return
+
+    #     self.is_td = False
+    #     self.a_index = 0
+
+    # def start_a(self, attrs):
+    #     if self.break_tag == True:
+    #         return
+
+    #     if self.start_tag != True:
+    #         return
+
+    #     magnet = self.magnets[-1]
+    #     if self.td_tag == 'action':
+    #         href = [v for k, v in attrs if k=='href']
+    #         if href and self.a_index == 0:
+    #             try:
+    #                 magnet.magnet_web_url = 'http://www.torrentkitty.com' + href[0]
+
+    #                 headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36", \
+    #                         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
+    #                 request = urllib2.Request(magnet.magnet_web_url, headers=headers)
+    #                 print('    processing magnet: ' + magnet.magnet_desc)
+    #                 magnet_usock = urllib2.urlopen(request, timeout=120)
+    #                 magnet_parser = MagnetInfo()
+    #                 magnet_parser.feed(magnet_usock.read())
+    #                 magnet_usock.close()
+    #                 magnet_parser.close()
+
+    #                 magnet.magnet_size = magnet_parser.size
+    #                 magnet.magnet_size_number = magnet_parser.size_number
+    #                 magnet.magnet_files_count = magnet_parser.files_count
+
+    #             except urllib2.HTTPError, e:
+    #                 if e.code == 404:
+    #                     magnet.magnet_size = '0M'
+    #                     magnet.magnet_size_number = 0
+    #                     magnet.magnet_files_count = 0
+    #                 else:
+    #                     raise e
+    #             except urllib2.URLError, e:
+    #                 raise e
+    #             except socket.timeout, e:
+    #                 raise e
+    #             except socket.error, e:
+    #                 raise e
+    #             except httplib.BadStatusLine, e:
+    #                 raise e
+
+    #         elif href and self.a_index == 1:
+    #             magnet.magnet_link = href[0]
+
+    #         self.a_index += 1
+
+    # def handle_data(self, text):
+    #     if self.break_tag == True:
+    #         return
+
+    #     if self.start_tag != True:
+    #         return
+
+    #     if self.is_td != True:
+    #         return
+
+    #     magnet = self.magnets[-1]
+    #     if self.td_tag == 'desc':
+    #         magnet.magnet_desc = text
+    #     elif self.td_tag == 'upload date':
+    #         magnet.magnet_upload_date = datetime.strptime(text, "%b %d, %Y").date()

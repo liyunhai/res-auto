@@ -2,16 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-# from os import listdir, stat
-# from stat import S_ISDIR
-
-import urllib2
+import socks
 import socket
+import urllib2
 import httplib
 from models import *
 
 
-base_dir = '/home/liyunhai/Dev/X-ART'
+base_dir = '/home/liyunhai/Share/temp/X-ART'
 
 def recordError(module, message, detail):
     error = Error_History()
@@ -29,6 +27,9 @@ def create_dir(dir):
     os.mkdir(dir)
 
 def down_image(url, dir):
+    if url == '':
+        return
+
     fileName = url.split('/')[-1].replace('%20', '_')
     fullName = os.path.join(dir, fileName)
 
@@ -38,6 +39,9 @@ def down_image(url, dir):
     print('downloading file: ' + url)
     
     try:
+
+        # socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 7070)
+        # socket.socket = socks.socksocket
 
         usock = urllib2.urlopen(url, timeout=60)
         data = usock.read()
@@ -77,24 +81,28 @@ def actress_down():
 
 
 def collection_down():
-    collection = L_XART_Collection.select()
+    collections = L_XART_Collection.select()
     for collection in collections:
-        name = collection.name.replace('', '_')
-        dir = os.path.join(base_dir, name)
-        
-        create_dir(dir)
-        # down_image(actress.image_small, dir)
-        down_image(actress.image_large, dir)
-    pass
+        name = collection.name.replace(' ', '_')
+        actresses = collection.actress.split(':')
+        for actress in actresses:
+            actress = actress.replace('.', '').replace(' ', '_')
+            dirActress = os.path.join(base_dir, actress)
+            dirCollection = os.path.join(dirActress, name)
 
+            create_dir(dirCollection)
+            down_image(collection.cover, dirCollection)
+            
+            if collection.ctype == 'Gallery':
+                down_image(collection.cover_large, dirCollection)
 
 def main():
+    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 7070)
+    socket.socket = socks.socksocket
 
     actress_down()
 
     collection_down()
-
-    # print('total process Galley: ' + str(gallery_count) + ' & Movie: ' + str(movie_count))
 
 if __name__ == '__main__':
     main()

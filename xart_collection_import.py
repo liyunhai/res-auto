@@ -3,6 +3,7 @@
 
 import sys
 import urllib2
+import socks
 import socket
 import httplib
 from htmlparser import XartCollectionList
@@ -94,6 +95,9 @@ def processActress(actress):
 def main():
     global gallery_count
     global movie_count
+
+    socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 7070)
+    socket.socket = socks.socksocket
     
     actresses = []
 

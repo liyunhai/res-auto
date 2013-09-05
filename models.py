@@ -303,6 +303,21 @@ class L_XART_Collection(db.Model):
     class Meta:
         database = command_db
 
+class L_XART_Magnet(db.Model):
+    collection = CharField(verbose_name='Collection')
+    actress = CharField(verbose_name='Actress')
+    ctype = CharField(verbose_name='Type')
+    name = CharField(verbose_name='Name')
+    link = CharField(verbose_name='Link')
+    size = CharField(verbose_name='Size')
+    magnet_create_time = DateTimeField(default=datetime.now, verbose_name='Create Time')
+
+    def __unicode__(self):
+        return self.collection
+
+    class Meta:
+        database = command_db
+
         
 
 
@@ -345,6 +360,7 @@ def create_tables():
 
     L_XART_Actress.create_table(fail_silently=True)
     L_XART_Collection.create_table(fail_silently=True)
+    L_XART_Magnet.create_table(fail_silently=True)
 
 def create_admin():
     admin = User(username='admin', admin=True, active=True, email='admin@example.com')
