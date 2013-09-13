@@ -306,7 +306,7 @@ class L_XART_Collection(db.Model):
 class L_XART_Magnet(db.Model):
     collection = CharField(verbose_name='Collection')
     actress = CharField(verbose_name='Actress')
-    ctype = CharField(verbose_name='Type')
+    type = CharField(verbose_name='Type')
     name = CharField(verbose_name='Name')
     link = CharField(verbose_name='Link')
     size = CharField(verbose_name='Size')

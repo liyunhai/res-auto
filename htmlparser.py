@@ -1057,201 +1057,198 @@ class XartMagnetList(SGMLParser):
     
     def __init__(self, collection):
         SGMLParser.__init__(self)
-        # self.movie = movie
-        # self.break_tag = False
+        self.collection = collection
+        self.break_tag = False
+        self.table_tag = False
+        self.tr_index = 0
+        self.td_index = 0
+        self.div_index = 0
+        self.a_index = 0
+        self.name_tag = False
         # self.start_tag = False
         # self.td_tag = ''
         # self.is_td = False
-        # self.tr_index = 0
+
         # self.a_index = 0
 
-        # self.magnets = []
+        self.magnets = []
 
     def reset(self):
         SGMLParser.reset(self)
-        # self.break_tag = False
+        self.break_tag = False
+        self.table_tag = False
+        self.tr_index = 0
+        self.td_index = 0
+        self.div_index = 0
+        self.a_index = 0
+        self.name_tag = False
         # self.start_tag = False
         # self.td_tag = ''
         # self.is_td = False
-        # self.tr_index = 0
+
         # self.a_index = 0
 
-        # self.magnets = []
+        self.magnets = []
 
-    # def start_table(self, attrs):
-    #     if self.break_tag == True:
-    #         return
+    def start_table(self, attrs):
+        if self.break_tag == True:
+            return
+        for attr in attrs:
+            if attr[0] == 'class' and attr[1] == 'data':
+                self.table_tag = True
+
+    def end_table(self):
+        if self.break_tag == True:
+            return
+
+        self.start_tag = False
+
+    def start_tr(self, attrs):
+        if self.break_tag == True:
+            return
+
+        if self.table_tag == False:
+            return
+            
+        if self.tr_index != 0:
+            magnet = L_XART_Magnet()
+            magnet.collection = self.collection.name
+            magnet.actress = self.collection.actress
+            magnet.name = ''
+            magnet.size = ''
+            self.magnets.append(magnet)
         
-    #     for attr in attrs:
-    #         if attr[0] == 'id' and attr[1] == 'archiveResult':
-    #             self.start_tag = True
+        self.tr_index += 1
 
-    # def end_table(self):
-    #     if self.break_tag == True:
-    #         return
+    def end_tr(self):
+        if self.break_tag == True:
+            return
 
-    #     self.start_tag = False
-        
+        self.td_index = 0
 
-    # def checkUnique(self, pre_magnet):
-    #     count = Magnet.select().where((Magnet.magnet_desc == pre_magnet.magnet_desc) & \
-    #         (Magnet.magnet_upload_date == pre_magnet.magnet_upload_date)).count()
-    #     if  count >= 1:
-    #         print('        unique check failed: ' + pre_magnet.magnet_desc)
-    #         return False
+    def start_td(self, attrs):
+        if self.break_tag == True:
+            return
 
-    #     return True
+        if self.table_tag == False:
+            return
 
-    # def checkAccuracy(self, pre_magnet):
+        if self.tr_index == 0:
+            return
 
-    #     keys = self.movie.movie_number.split('-')
-    #     p1 = self.movie.movie_number.lower()
-    #     p2 = (keys[0] + keys[1]).lower()
-    #     p3 = (keys[0] + '00' + keys[1]).lower()
-    #     p4 = (keys[0] + '0' + keys[1]).lower()
-    #     p5 = (keys[0] + '_' + keys[1]).lower()
-    #     p6 = (keys[0] + ' ' + keys[1]).lower()
+        self.td_index += 1
 
-    #     udesc = unicode(pre_magnet.magnet_desc.lower(), "utf-8")
+        # for attr in attrs:
+        #     if attr[0] == 'class' and attr[1] == 'name':
+        #         self.td_tag = 'desc'
+        #     elif attr[0] == 'class' and attr[1] == 'date':
+        #         self.td_tag = 'upload date'
+        #     elif attr[0] == 'class' and attr[1] == 'action':
+        #         self.td_tag = 'action'
+        #     else:
+        #         self.td_tag = ''
 
-    #     if udesc.find(p1) != -1:
-    #         return True
+    def end_td(self):
+        if self.break_tag == True:
+            return
 
-    #     if udesc.find(p2) != -1:
-    #         return True
+        if self.table_tag == False:
+            return
 
-    #     if udesc.find(p3) != -1:
-    #         return True
+        if self.tr_index == 0:
+            return
 
-    #     if udesc.find(p4) != -1:
-    #         return True
+        self.div_index = 0
 
-    #     if udesc.find(p5) != -1:
-    #         return True
+    def start_div(self, attrs):
+        if self.break_tag == True:
+            return
 
-    #     if udesc.find(p6) != -1:
-    #         return True
+        if self.table_tag == False:
+            return
 
-    #     print('        accuracy check failed: ' + pre_magnet.magnet_desc)
-    #     return False
+        if self.tr_index == 0:
+            return
 
-    # def start_tr(self, attrs):
-    #     if self.break_tag == True:
-    #         return
+        if self.td_index != 1 and self.td_index != 2:
+            return
 
-    #     if self.start_tag == True:
-    #         if self.tr_index != 0:
-    #             magnet = Magnet()
-    #             magnet.movie = self.movie
-    #             self.magnets.append(magnet)
-    #         self.tr_index += 1
+        self.div_index += 1
 
-    # def end_tr(self):
-    #     if self.break_tag == True:
-    #         return
+    def end_div(self):
+        if self.break_tag == True:
+            return
 
-    #     self.td_tag = ''
+        if self.table_tag == False:
+            return
 
-    #     if len(self.magnets) >= 1:
-    #         pre_magnet = self.magnets[-1]
-    #         if self.checkUnique(pre_magnet) == False:
-    #             del self.magnets[-1]
-    #             self.break_tag = True
-    #             if len(self.magnets) == 0:
-    #                 print('******************** no magnet update ********************')
-    #             return
+        if self.tr_index == 0:
+            return
 
-    #         if self.checkAccuracy(pre_magnet) == False:
-    #             del self.magnets[-1]
+        if self.td_index != 1 and self.td_index != 2:
+            return
 
-    # def start_td(self, attrs):
-    #     if self.break_tag == True:
-    #         return
+        self.a_index = 0
 
-    #     if self.start_tag != True:
-    #         return
+    def start_a(self, attrs):
+        if self.break_tag == True:
+            return
 
-    #     for attr in attrs:
-    #         if attr[0] == 'class' and attr[1] == 'name':
-    #             self.td_tag = 'desc'
-    #         elif attr[0] == 'class' and attr[1] == 'date':
-    #             self.td_tag = 'upload date'
-    #         elif attr[0] == 'class' and attr[1] == 'action':
-    #             self.td_tag = 'action'
-    #         else:
-    #             self.td_tag = ''
+        if self.table_tag == False:
+            return
 
+        if self.tr_index == 0:
+            return
 
-    #     self.is_td = True
+        if self.td_index == 1:
+            if self.div_index == 1:
+                self.a_index += 1
+                if self.a_index == 3:
+                    for attr in attrs:
+                        if attr[0] == 'href':
+                            magnet = self.magnets[-1]
+                            magnet.link = attr[1]
+                            break
+            elif self.div_index == 2:
+                self.a_index += 1
+                if self.a_index == 1:
+                    for attr in attrs:
+                        if attr[0] == 'class':
+                            magnet = self.magnets[-1]
+                            magnet.type = attr[1]
+                elif self.a_index == 2:
+                    self.name_tag = True
 
-    # def end_td(self):
-    #     if self.break_tag == True:
-    #         return
+    def end_a(self):
+        if self.break_tag == True:
+            return
 
-    #     self.is_td = False
-    #     self.a_index = 0
+        if self.table_tag == False:
+            return
 
-    # def start_a(self, attrs):
-    #     if self.break_tag == True:
-    #         return
+        if self.tr_index == 0:
+            return
 
-    #     if self.start_tag != True:
-    #         return
+        if self.td_index != 1:
+            return
 
-    #     magnet = self.magnets[-1]
-    #     if self.td_tag == 'action':
-    #         href = [v for k, v in attrs if k=='href']
-    #         if href and self.a_index == 0:
-    #             try:
-    #                 magnet.magnet_web_url = 'http://www.torrentkitty.com' + href[0]
+        if self.div_index == 2 and self.a_index == 2:
+            self.name_tag = False
 
-    #                 headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36", \
-    #                         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"}
-    #                 request = urllib2.Request(magnet.magnet_web_url, headers=headers)
-    #                 print('    processing magnet: ' + magnet.magnet_desc)
-    #                 magnet_usock = urllib2.urlopen(request, timeout=120)
-    #                 magnet_parser = MagnetInfo()
-    #                 magnet_parser.feed(magnet_usock.read())
-    #                 magnet_usock.close()
-    #                 magnet_parser.close()
+    def handle_data(self, text):
+        if self.break_tag == True:
+            return
 
-    #                 magnet.magnet_size = magnet_parser.size
-    #                 magnet.magnet_size_number = magnet_parser.size_number
-    #                 magnet.magnet_files_count = magnet_parser.files_count
+        if self.table_tag == False:
+            return
 
-    #             except urllib2.HTTPError, e:
-    #                 if e.code == 404:
-    #                     magnet.magnet_size = '0M'
-    #                     magnet.magnet_size_number = 0
-    #                     magnet.magnet_files_count = 0
-    #                 else:
-    #                     raise e
-    #             except urllib2.URLError, e:
-    #                 raise e
-    #             except socket.timeout, e:
-    #                 raise e
-    #             except socket.error, e:
-    #                 raise e
-    #             except httplib.BadStatusLine, e:
-    #                 raise e
+        if self.tr_index == 0:
+            return
 
-    #         elif href and self.a_index == 1:
-    #             magnet.magnet_link = href[0]
-
-    #         self.a_index += 1
-
-    # def handle_data(self, text):
-    #     if self.break_tag == True:
-    #         return
-
-    #     if self.start_tag != True:
-    #         return
-
-    #     if self.is_td != True:
-    #         return
-
-    #     magnet = self.magnets[-1]
-    #     if self.td_tag == 'desc':
-    #         magnet.magnet_desc = text
-    #     elif self.td_tag == 'upload date':
-    #         magnet.magnet_upload_date = datetime.strptime(text, "%b %d, %Y").date()
+        if self.td_index == 1:
+            if self.name_tag == True:
+                magnet = self.magnets[-1]
+                magnet.name = magnet.name + text
+        elif self.td_index == 2:
+            magnet = self.magnets[-1]
+            magnet.size = magnet.size + text

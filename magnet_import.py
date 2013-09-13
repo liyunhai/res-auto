@@ -6,7 +6,9 @@ import urllib2
 import socket
 import httplib
 from htmlparser import MagnetList
-# from utils import recordError
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
 from models import *
 
 def recordError(module, message, detail):
@@ -38,7 +40,17 @@ def processMovie(movie):
             magnet.save()
             index += 1
 
-        if magnet_count != 0:
+        if(movie.movie_status == 'new') or (movie.movie_status == 'multi') or (movie.movie_status == 'import_dead'):
+            if magnet_count != 0:
+                movie.movie_status = 'import_done'
+                movie.movie_magnet_count = magnet_count
+            else:
+                today = date.today()
+                days = (today - movie.movie_release_date).days
+                if days > 90:
+                    movie.movie_status = 'import_dead'
+            movie.save()
+        else:
             movie.movie_magnet_count += magnet_count
             movie.save()
     except urllib2.HTTPError, e:
@@ -61,11 +73,23 @@ def main():
     movies = []
 
     if len(sys.argv) == 1:
-        movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new'))
+        movies = Movie.select().where((Movie.movie_status != 'fhd_done') & (Movie.movie_status != 'multi'))
     elif len(sys.argv) == 2:
-        actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
-        movies = Movie.select().where((Movie.movie_magnet_count == 0) & (Movie.movie_status == 'new') & (Movie.movie_actress % actress))
-
+        if sys.argv[1] == 'new':
+            movies = Movie.select().where(Movie.movie_status == 'new')
+        elif sys.argv[1] == 'multi':
+            movies = Movie.select().where(Movie.movie_status == 'multi')
+        elif sys.argv[1] == 'fordead':
+            day = date.today() + timedelta(-90)
+            movies = Movie.select().where((Movie.movie_status == 'import_dead') & (Movie.movie_release_date > day))
+        elif sys.argv[1] == 'forupdate':
+            day = date.today() + timedelta(-90)
+            movies = Movie.select().where((Movie.movie_status == 'import_done') & (Movie.movie_release_date > day))
+        elif sys.argv[1] == 'forhd':
+            movies = Movie.select().where((Movie.movie_status == 'hd_done') | (Movie.movie_status == 'sd_done')) 
+        else:
+            actress = u'%' + sys.argv[1].decode('utf-8') + u'%'
+            movies = Movie.select().where((Movie.movie_status != 'fhd_done') & (Movie.movie_status != 'multi') & (Movie.movie_actress % actress))
     for movie in movies:
         print('begin to process movie: ' + movie.movie_number + ' ' + movie.movie_name)
         processMovie(movie)
