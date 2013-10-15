@@ -164,7 +164,7 @@ class FanHaoList(SGMLParser):
             try:
                 movie.movie_release_date = datetime.strptime(text, "%Y-%m-%d").date()
             except ValueError:
-                movie.movie_release_date = datetime.datetime.fromtimestamp(0)
+                movie.movie_release_date = dt.datetime.fromtimestamp(0)
 
             if movie.movie_release_date == self.last_time:
                 if Movie.select().where(Movie.movie_number == movie.movie_number).count() >= 1:
